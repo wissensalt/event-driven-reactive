@@ -1,0 +1,44 @@
+---
+version: '3'
+services:
+  database:
+    image: "postgres:9.6-alpine"
+    container_name: postgresql_db_event_driven
+    ports:
+      - 5432:5432
+    env_file:
+      - database.env
+      
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.1.1
+    hostname: zookeeper
+    container_name: zookeeper
+    depends_on:
+      - database
+    ports:
+      - "2181:2181"
+    env_file:
+      - zookeeper.env
+
+  broker:
+    image: confluentinc/cp-server:6.1.1
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    env_file:
+      - kafka.env
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:6.1.1
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - broker
+    ports:
+      - "8081:8081"
+    env_file:
+      - schema-registry.env
